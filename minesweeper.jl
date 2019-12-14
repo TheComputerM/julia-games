@@ -150,7 +150,7 @@ function simulateClick(x, y)
     if (field[y, x] == -1)
         global is_game_over = true
         println("You Lost !!")
-        println(displayField(field))
+        displayFinalField()
         exit()
     elseif (field[y, x] == 0)
         clickOnZero(x, y)
@@ -170,6 +170,15 @@ function parseInput(task, x, y)
     end
 end
 
+function displayFinalField()
+    for y in 1:field_size, x in 1:field_size
+        if (field[y, x] == -1)
+            global field_view[y, x] = "*"
+        end
+    end
+    println(displayField(field_view))
+end
+
 while (!is_game_over)
 
     # Find the easter egg here
@@ -185,7 +194,7 @@ while (!is_game_over)
     inpList = split(inp)
 
     if (inp == "exit")
-        print(displayField(field))
+        displayFinalField()
         exit()
     elseif (length(inpList) == 3)
         x = parse(Int32, inpList[2])
@@ -193,7 +202,7 @@ while (!is_game_over)
         parseInput(inpList[1], x, y)
         if (revealed_cells == (field_size^2) - mine_count)
             println("You Won !!")
-            println(displayField(field))
+            displayFinalField()
             exit()
         end
     else
