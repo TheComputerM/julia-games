@@ -39,7 +39,7 @@ Type `m 1 2` to mine (1, 2) or `f 1 2` to flag (1, 2) or type `exit` to exit.
 """
 
 function generateRandomCoord(min, max)
-    return floor(Int, ((rand(1)[1] * 8) + 1))
+    return rand(1:field_size)
 end
 
 function checkSurroundingCells(field, x, y)
@@ -55,7 +55,7 @@ function checkSurroundingCells(field, x, y)
         (x + 1, y + 1),
     ]
     for c in surroundingCells
-        if (c[1] > 0 && c[2] > 0 && c[1] < 9 && c[2] < 9)
+        if (0 < c[1] <= field_size && 0 < c[2] <= field_size)
             if (field[c[2], c[1]] == -1)
                 noOfMines += 1
             end
@@ -68,25 +68,24 @@ function addNumbersToCells()
     for y = 1:field_size
         for x = 1:field_size
             if (field[y, x] != -1)
-                global field[y, x] = checkSurroundingCells(field, x, y)
+                field[y, x] = checkSurroundingCells(field, x, y)
             end
         end
     end
 end
 
-# Adding Mines to field
-for i = 1:mine_count
-    function add_mines()
-        x = generateRandomCoord(1, field_size)
-        y = generateRandomCoord(1, field_size)
-        if (field[y, x] != -1)
-            global field[y, x] = -1
-        else
-            add_mines()
-        end
+function add_mines()
+    x = generateRandomCoord(1, field_size)
+    y = generateRandomCoord(1, field_size)
+    if (field[y, x] != -1)
+        field[y, x] = -1
+    else
+        add_mines()
     end
-    add_mines()
 end
+
+# Adding Mines to field
+for i = 1:mine_count add_mines() end
 
 addNumbersToCells()
 
@@ -123,7 +122,7 @@ end
 
 function clickOnZero(x, y)
     global field_view[y, x] = "0"
-    global revealed_cells = revealed_cells + 1
+    global revealed_cells += 1
     surroundingCells = [
         (x - 1, y - 1),
         (x - 1, y),
@@ -135,12 +134,14 @@ function clickOnZero(x, y)
         (x + 1, y + 1),
     ]
     for c in surroundingCells
-        if (c[1] > 0 && c[2] > 0 && c[1] < 9 && c[2] < 9)
+        if (0 < c[1] <= field_size && 0 < c[2] <= field_size)
+
             if (field[c[2], c[1]] == 0 && field_view[c[2], c[1]] == "■")
                 clickOnZero(c[1], c[2])
+
             elseif (field[c[2], c[1]] != -1 && field_view[c[2], c[1]] == "■")
-                global field_view[c[2], c[1]] = field[c[2], c[1]]
-                global revealed_cells = revealed_cells + 1
+                field_view[c[2], c[1]] = field[c[2], c[1]]
+                global revealed_cells += 1
             end
         end
     end
@@ -155,8 +156,8 @@ function simulateClick(x, y)
     elseif (field[y, x] == 0)
         clickOnZero(x, y)
     else
-        global field_view[y, x] = field[y, x]
-        global revealed_cells = revealed_cells + 1
+        field_view[y, x] = field[y, x]
+        global revealed_cells += 1
     end
 end
 
@@ -165,7 +166,7 @@ function parseInput(task, x, y)
         simulateClick(x, y)
     elseif (task == "f")
         if (field_view[y, x] == "■")
-            global field_view[y, x] = "?"
+            field_view[y, x] = "?"
         end
     end
 end
@@ -173,7 +174,7 @@ end
 function displayFinalField()
     for y in 1:field_size, x in 1:field_size
         if (field[y, x] == -1)
-            global field_view[y, x] = "*"
+            field_view[y, x] = "*"
         end
     end
     println(displayField(field_view))
