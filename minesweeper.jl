@@ -185,7 +185,8 @@ while (!is_game_over)
     inpList = split(inp)
 
     if (inp == "exit")
-        break
+        print(displayField(field))
+        exit()
     elseif (length(inpList) == 3)
         x = parse(Int32, inpList[2])
         y = parse(Int32, inpList[3])
