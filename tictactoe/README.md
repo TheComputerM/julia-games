@@ -1,6 +1,16 @@
 ## Tic Tac Toe
 
-#### Install dependencies
+### Preview
+
+#### Player vs Player
+![Player vs Player](./README/player.gif)
+----------------------
+
+#### Player vs Computer
+![Player vs Computer](./README/computer.gif)
+----------------------
+
+### Install dependencies
 
 ```
 using Pkg
@@ -18,5 +28,3 @@ To play against the computer, type
 ```
 julia> include("tictactoe/versuscomp.jl")
 ```
-
-### Preview
