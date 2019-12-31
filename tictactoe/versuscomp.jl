@@ -53,7 +53,7 @@ end
 function compClick(grid_arr)
     for x in 1:3, y in 1:3
         if get_gtk_property(grid_arr[x, y], :label, String) == ""
-            sleep(2000)
+            sleep(2)
             set_gtk_property!(grid_arr[x, y], :label, "O")
             break
         end
