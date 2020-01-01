@@ -3,3 +3,4 @@
 - Minesweeper
 - Tic Tac Toe
 - Rock Paper Scissors
+- Hangman
