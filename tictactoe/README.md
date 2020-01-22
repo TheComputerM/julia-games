@@ -1,4 +1,5 @@
 # Tic Tac Toe
+Tic Tac Toe is a classic game also known as 'X and O'. Learn more about it at [Wikipedia](https://en.wikipedia.org/wiki/Tic-tac-toe).
 
 ## Task Description
 Write a Tic-Tac-Toe game using Julia.
@@ -11,17 +12,7 @@ Play using the console, with a single-player against the computer. Start with a 
 
 The final submission should include a GitHub Gist or GitHub Repo with the code and examples of the game being played in both modes.
 
-## Preview
-
-### Player vs Player
-![Player vs Player](./README/player.gif)
-----------------------
-
-#### Player vs Computer
-![Player vs Computer](./README/computer.gif)
-----------------------
-
-### Install dependencies
+## Install dependencies
 
 ```
 using Pkg
@@ -39,3 +30,13 @@ To play against the computer, type
 ```
 julia> include("tictactoe/versuscomp.jl")
 ```
+
+## Preview
+
+### Player vs Player
+![Player vs Player](./README/player.gif)
+----------------------
+
+#### Player vs Computer
+![Player vs Computer](./README/computer.gif)
+----------------------
