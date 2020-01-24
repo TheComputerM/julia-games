@@ -8,7 +8,7 @@ grid = [
     ["", "", ""]
 ]
 
-turnOfPlayer1 = true
+turnOfPlayer = true
 
 # Move set
 player = "X"
@@ -34,33 +34,29 @@ function setup_grid()
 end
 
 
-function update_grid() 
+function update_grid(board) 
     for x in 1:3, y in 1:3
-        set_gtk_property!(grid_gtk[x, y], :label, grid[y][x])
+        set_gtk_property!(grid_gtk[x, y], :label, board[y][x])
     end
 end
 
-function isGameOver()
+function isGameOver(board)
     for i in 1:3
         # Checking all columns
-        if grid[1][i] == grid[2][i] == grid[3][i]
-            if grid[1][i] == player1
-                global whowon = player1
-                return true
-            elseif grid[1][i] == player2
-                global whowon = player2
-                return true
+        if board[1][i] == board[2][i] == board[3][i]
+            if board[1][i] == player
+                return [true, player]
+            elseif board[1][i] == comp
+                return [true, comp]
             end
         end
 
         # Checking all rows
-        if grid[i][1] == grid[i][2] == grid[i][3]
-            if grid[i][1] == player1
-                global whowon = player1
-                return true
-            elseif grid[i][1] == player2
-                global whowon = player2
-                return true
+        if board[i][1] == board[i][2] == board[i][3]
+            if board[i][1] == player
+                return [true, player]
+            elseif board[i][1] == comp
+                return [true, comp]
             end
         end
     end
@@ -69,13 +65,11 @@ function isGameOver()
     #  + | - | -
     #  - | + | -
     #  - | - | +
-    if grid[1][1] == grid[2][2] == grid[3][3]
-        if grid[1][1] == player1
-            global whowon = player1
-            return true
-        elseif grid[1][1] == player2
-            global whowon = player2
-            return true
+    if board[1][1] == board[2][2] == board[3][3]
+        if board[1][1] == player
+            return [true, player]
+        elseif board[1][1] == comp
+            return [true, comp]
         end
     end
 
@@ -83,33 +77,93 @@ function isGameOver()
     #  - | - | +
     #  - | + | -
     #  + | - | -
-    if grid[1][3] == grid[2][2] == grid[3][1]
-        if grid[2][2] == player1
-            global whowon = player1
-            return true
-        elseif grid[2][2] == player2
-            global whowon = player2
-            return true
+    if board[1][3] == board[2][2] == board[3][1]
+        if board[2][2] == player
+            return [true, player]
+        elseif board[2][2] == comp
+            return [true, comp]
         end
     end
 
-    return false
+    return [false, ""]
 end
 
 # Check if game is tied or not
-function isTie()
+function isTie(board)
+    if isGameOver(board)[1]
+        return false
+    end
     for x in 1:3, y in 1:3
-        if grid[y][x] == "" return false end
+        if board[y][x] == "" 
+            return false 
+        end
     end
     return true
+end
+
+scores = Dict("X" => -1, "O" => 1, "tie" => 0)
+
+# Added minimax algorithm
+function minimax(board, depth, isMaximizing)
+    # Check if game is over or tied
+    result = isGameOver(board)
+    if result[1]
+        return scores[result[2]]
+    elseif isTie(board)
+        return scores["tie"]
+    end
+
+    if isMaximizing
+        best = -Inf
+        for x in 1:3, y in 1:3
+            if board[y][x] == ""
+                board[y][x] = comp
+                # Recursion!
+                score = minimax(board, depth + 1, false)
+                board[y][x] = ""
+                # Maximum of scores so that computer wins
+                best = max(score, best)
+            end
+        end
+        return best
+    else
+        best = Inf
+        for x in 1:3, y in 1:3
+            if board[y][x] == ""
+                board[y][x] = player
+                score = minimax(board, depth + 1, true)
+                board[y][x] = ""
+                # Minimum of scores so that player loses
+                best = min(score, best)
+            end
+        end
+        return best
+    end
+end
+
+# Getting the best move possible to win
+function bestMove(board)
+    best = -Inf
+    move = [1, 1]
+    for x in 1:3, y in 1:3
+        if board[y][x] == ""
+            board[y][x] = comp
+            score = minimax(board, 0, false)
+            board[y][x] = ""
+            if best < score
+                best = score
+                move = [x, y]
+            end
+        end
+    end
+    board[move[2]][move[1]] = comp
 end
 
 # Clicking on button
 function btnClick(btn)
     btnVal = get_prop(btn, :label, String)
-    if btnVal == "" && !isGameOver()
-
-        turnof = turnOfPlayer1 ? player1 : player2
+    if btnVal == "" && !isGameOver(grid)[1]
+        turnof = player
 
         set_gtk_property!(btn, :label, turnof)
 
@@ -117,11 +171,16 @@ function btnClick(btn)
             grid[y][x] = get_prop(grid_gtk[x, y], :label, String)
         end
 
-        if isGameOver() GAccessor.text(label, "Game Over! $whowon won!")
-        elseif isTie() GAccessor.text(label, "It is a Tie!")
-        else GAccessor.text(label, "Turn of $turnof") end
+        # Computer Playing
+        bestMove(grid)
+        update_grid(grid)
 
-        global turnOfPlayer1 = !turnOfPlayer1
+        # Checking if game is over
+        result = isGameOver(grid)
+        if result[1] GAccessor.text(label, "Game Over! " * result[2] * " won!")
+        elseif isTie(grid) GAccessor.text(label, "It is a Tie!")
+        else GAccessor.text(label, "Minimax Activated")
+        end
     elseif btnVal != ""
         GAccessor.text(label, "Cell already filled")
     end
