@@ -1,6 +1,8 @@
 # Tic Tac Toe
 Tic Tac Toe is a classic game also known as 'X and O'. Learn more about it at [Wikipedia](https://en.wikipedia.org/wiki/Tic-tac-toe).
 
+You can play against a player or a computer using the `minimax` algorithm.
+
 ## Task Description
 Write a Tic-Tac-Toe game using Julia.
 
