@@ -12,6 +12,7 @@ load!(w, "./style.css", async=false)
 canvasID = "game"
 snakeColor = "blue"
 foodColor = "red"
+score = 0
 
 js(w, Blink.JSString("""
 var canvas = document.getElementById("$canvasID");
@@ -19,6 +20,8 @@ var context = canvas.getContext("2d");
 
 var grid = 16;
 var count = 0;
+
+var score = 0;
 
 var snake = {
   x: 160,

@@ -1,85 +1,140 @@
 using Gtk
 
-win = GtkWindow("Tic Tac Toe", 200, 100)
-
-turn_of_x = true
+win = GtkWindow("Tic Tac Toe", 200, 150)
 
 grid = [
-    GtkButton("") GtkButton("") GtkButton("")
-    GtkButton("") GtkButton("") GtkButton("")
-    GtkButton("") GtkButton("") GtkButton("")
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""]
 ]
 
-grid_view = GtkGrid()
+turnOfPlayer1 = true
 
-function ifGameOver(grid_arr)
-    for x = 1:3
-        if get_gtk_property(grid_arr[x, 1], :label, String) ==
-           get_gtk_property(grid_arr[x, 2], :label, String) ==
-           get_gtk_property(grid_arr[x, 3], :label, String) != ""
-            return [true, get_gtk_property(grid_arr[x, 1], :label, String)]
-            break
-        end
+# Move set
+player1 = "X"
+player2 = "O"
+whowon = ""
+
+grid_gtk = GtkGrid()
+
+vbox = GtkBox(:v)
+
+label = GtkLabel("Play time!")
+
+# I am lazy so I type get_prop instead of get_gtk_property
+get_prop = get_gtk_property
+
+function setup_grid()
+    for x in 1:3, y in 1:3
+        grid_gtk[x, y] = GtkButton("")
+        signal_connect(btnClick, grid_gtk[x, y], "clicked")
     end
-    for y = 1:3
-        if get_gtk_property(grid_arr[1, y], :label, String) ==
-           get_gtk_property(grid_arr[2, y], :label, String) ==
-           get_gtk_property(grid_arr[3, y], :label, String) != ""
-            return [true, get_gtk_property(grid_arr[1, y], :label, String)]
-            break
-        end
-    end
-    if get_gtk_property(grid_arr[1, 1], :label, String) ==
-       get_gtk_property(grid_arr[2, 2], :label, String) ==
-       get_gtk_property(grid_arr[3, 3], :label, String) != ""
-       return [true, get_gtk_property(grid_arr[1, 1], :label, String)]
-    end
-    if get_gtk_property(grid_arr[1, 3], :label, String) ==
-       get_gtk_property(grid_arr[2, 2], :label, String) ==
-       get_gtk_property(grid_arr[3, 1], :label, String) != ""
-       return [true, get_gtk_property(grid_arr[1, 3], :label, String)]
-    end
-    return [false, ""]
+    set_gtk_property!(grid_gtk, :column_homogeneous, true)
+    set_gtk_property!(grid_gtk, :column_spacing, 10)
 end
 
-function checkIfTie(grid_arr)
+
+function update_grid() 
     for x in 1:3, y in 1:3
-        if get_gtk_property(grid_arr[x, y], :label, String) == ""
-            return false
-            break
+        set_gtk_property!(grid_gtk[x, y], :label, grid[y][x])
+    end
+end
+
+function isGameOver()
+    for i in 1:3
+        # Checking all columns
+        if grid[1][i] == grid[2][i] == grid[3][i]
+            if grid[1][i] == player1
+                global whowon = player1
+                return true
+            elseif grid[1][i] == player2
+                global whowon = player2
+                return true
+            end
         end
+
+        # Checking all rows
+        if grid[i][1] == grid[i][2] == grid[i][3]
+            if grid[i][1] == player1
+                global whowon = player1
+                return true
+            elseif grid[i][1] == player2
+                global whowon = player2
+                return true
+            end
+        end
+    end
+
+    # Checking diagonal
+    #  + | - | -
+    #  - | + | -
+    #  - | - | +
+    if grid[1][1] == grid[2][2] == grid[3][3]
+        if grid[1][1] == player1
+            global whowon = player1
+            return true
+        elseif grid[1][1] == player2
+            global whowon = player2
+            return true
+        end
+    end
+
+    # Checking diagonal
+    #  - | - | +
+    #  - | + | -
+    #  + | - | -
+    if grid[1][3] == grid[2][2] == grid[3][1]
+        if grid[2][2] == player1
+            global whowon = player1
+            return true
+        elseif grid[2][2] == player2
+            global whowon = player2
+            return true
+        end
+    end
+
+    return false
+end
+
+# Check if game is tied or not
+function isTie()
+    for x in 1:3, y in 1:3
+        if grid[y][x] == "" return false end
     end
     return true
 end
 
-function clickOnBtn(btn)
-    if get_gtk_property(btn, :label, String) == ""
-        if (turn_of_x)
-            set_gtk_property!(btn, :label, "X")
-        else
-            set_gtk_property!(btn, :label, "O")
-        end
-        global turn_of_x = !turn_of_x
+# Clicking on button
+function btnClick(btn)
+    btnVal = get_prop(btn, :label, String)
+    if btnVal == "" && !isGameOver()
 
-        gameOver = ifGameOver(grid_view)
-        if (gameOver[1])
-            info_dialog("Game Over: $(gameOver[2]) Won!")
-            exit()
+        turnof = turnOfPlayer1 ? player1 : player2
+
+        set_gtk_property!(btn, :label, turnof)
+
+        for x in 1:3, y in 1:3
+            grid[y][x] = get_prop(grid_gtk[x, y], :label, String)
         end
-    end
-    if (checkIfTie(grid_view))
-        info_dialog("It's a Tie")
-        exit()
+
+        global turnOfPlayer1 = !turnOfPlayer1
+        turnof = turnOfPlayer1 ? player1 : player2
+        if isGameOver() GAccessor.text(label, "Game Over! $whowon won!")
+        elseif isTie() GAccessor.text(label, "It is a Tie!")
+        else GAccessor.text(label, "Turn of $turnof") end
+
+        
+    elseif btnVal != ""
+        GAccessor.text(label, "Cell already filled")
     end
 end
 
-for x = 1:3, y = 1:3
-    grid_view[x, y] = grid[x, y]
-    signal_connect(clickOnBtn, grid_view[x, y], "clicked")
-end
 
-set_gtk_property!(grid_view, :column_homogeneous, true)
-set_gtk_property!(grid_view, :column_spacing, 15)
+setup_grid()
 
-push!(win, grid_view)
+push!(vbox, GtkLabel("=================="))
+push!(vbox, grid_gtk)
+push!(vbox, GtkLabel("=================="))
+push!(vbox, label)
+push!(win, vbox)
 showall(win)
