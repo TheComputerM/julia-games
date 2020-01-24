@@ -39,6 +39,9 @@ julia> include("tictactoe/versuscomp.jl")
 ![Player vs Player](./README/player.gif)
 ----------------------
 
-#### Player vs Computer
+### Player vs Computer
 ![Player vs Computer](./README/computer.gif)
 ----------------------
+
+## References
+A big thanks to [https://youtu.be/trKjYdBASyQ](https://youtu.be/trKjYdBASyQ)
